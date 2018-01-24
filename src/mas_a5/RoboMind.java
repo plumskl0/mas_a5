@@ -5,8 +5,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RoboMind {
 
 	private static RoboMind instance;
-	
+
+	// Rewardliste
 	private ConcurrentHashMap<String, Integer> rewList;
+	
+	// Qliste
+	private ConcurrentHashMap<String, Double> qList;	
 	
 	private RoboMind() {
 		this.rewList = new ConcurrentHashMap<String, Integer>();
@@ -19,12 +23,20 @@ public class RoboMind {
 		return instance;
 	}
 
-	public void addInfo(Koordinate k) {
+	public void addReward(Koordinate k) {
 		rewList.put(k.toString(), k.getReward());
 	}
 	
-	public int getInfo(String key) {
+	public int getReward(String key) {
 		return rewList.get(key);
+	}
+	
+	public void addQVal(String key, double d) {
+		qList.put(key, d);
+	}
+	
+	public double getQVal(String key) {
+		return qList.get(key);
 	}
 	
 }
