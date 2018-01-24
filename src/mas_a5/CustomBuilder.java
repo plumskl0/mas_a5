@@ -1,5 +1,7 @@
 package mas_a5;
 
+import mas_a5.Koordinaten.Koordinate;
+import mas_a5.Koordinaten.KoordinatenFactory;
 import repast.simphony.context.Context;
 import repast.simphony.context.space.continuous.ContinuousSpaceFactory;
 import repast.simphony.context.space.continuous.ContinuousSpaceFactoryFinder;
@@ -18,8 +20,8 @@ public class CustomBuilder implements ContextBuilder<Object> {
 	private ContinuousSpace<Object> space;
 	private Grid<Object> grid;
 	
-	private int xGrid = 5;
-	private int yGrid = 10;
+	private int xGrid = 10;
+	private int yGrid = 5;
 	
 	@Override
 	public Context build(Context<Object> context) {
@@ -36,22 +38,43 @@ public class CustomBuilder implements ContextBuilder<Object> {
 		grid = gridFactory.createGrid("grid", context,
 				new GridBuilderParameters<Object>(new StrictBorders(), new SimpleGridAdder<Object>(), true, xGrid, yGrid));
 
+		// Gedächtnis der Robos erzeugen
+		RoboMind rm = RoboMind.getInstance();
+		
+		// Reward und Q Listen füllen
+		for (int x = 0; x < xGrid; x++) {
+			for (int y = 0; y < yGrid; y++) {
+				String c = x+"_"+y;
+				rm.addReward(c, 0);
+				rm.addQVal(c, 0.0d);
+			}
+		}
+		
 		// Koordinaten eingeben
 		for (int x = 0; x < xGrid; x++) {
 			for(int y = 0; y < yGrid; y++) {
-				addKoordinate(context, new Koordinate(x, y));
+				
+				Koordinate k = KoordinatenFactory.createKoordinate(x, y);
+				
+				addKoordinate(context, k);
 			}
 		}
-
-		// Gedächtnis der Robos erzeugen
 		
+		// Roboter erzeugen und Gedächtnis hinzufügen
+		Robo r1 = new Robo(space, grid, rm);
+		Robo r2 = new Robo(space, grid, rm);
 		
-		// Roboter erzeugen
-		
+		addRobo(context, r1, 0, 0);
+		addRobo(context, r2, 0, 4);
 		
 		return context;
 	}
 
+	private void addRobo(Context<Object> ctx, Robo b, int x, int y) {
+		ctx.add(b);
+		space.moveTo(b, (int) x, (int) y);
+		grid.moveTo(b, (int) x, (int) y);
+	}
 	
 	private void addKoordinate(Context<Object> ctx, Koordinate k) {
 		ctx.add(k);
