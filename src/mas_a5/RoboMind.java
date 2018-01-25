@@ -66,7 +66,11 @@ public class RoboMind {
 
 	// Q(state, action) = R(state, action) + Gamma * Max[Q(next state, all
 	// actions)]
-	private void updateQList(int currentX, int currentY) {
+	public String updateQList(Koordinate k) {
+		return updateQList(k.getX(), k.getY());
+	}
+	
+	public String updateQList(int currentX, int currentY) {
 
 		double rewardCurrState = getReward(currentX + "_" + currentY);
 
@@ -120,11 +124,11 @@ public class RoboMind {
 		addQVal(maxEntry.getKey(), newQVal);
 		
 		// QValue = Reward bei Acttion
-
+		return maxEntry.getKey();
 	}
 
-	private int optionsCount(int currentX, int currentY) {
-		int cnt = 0;
+	private double optionsCount(int currentX, int currentY) {
+		double cnt = 0.0d;
 		// Rechts
 		if (rewList.containsKey((currentX + 1) + "_" + currentY))
 			;

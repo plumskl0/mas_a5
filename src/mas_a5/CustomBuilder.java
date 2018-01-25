@@ -8,6 +8,8 @@ import repast.simphony.context.space.continuous.ContinuousSpaceFactoryFinder;
 import repast.simphony.context.space.grid.GridFactory;
 import repast.simphony.context.space.grid.GridFactoryFinder;
 import repast.simphony.dataLoader.ContextBuilder;
+import repast.simphony.engine.environment.RunEnvironment;
+import repast.simphony.parameter.Parameters;
 import repast.simphony.space.continuous.ContinuousSpace;
 import repast.simphony.space.continuous.SimpleCartesianAdder;
 import repast.simphony.space.grid.Grid;
@@ -60,9 +62,12 @@ public class CustomBuilder implements ContextBuilder<Object> {
 			}
 		}
 		
+		Parameters params = RunEnvironment.getInstance().getParameters();
+		System.out.println(params.getInteger("maxRuns"));
+		
 		// Roboter erzeugen und Gedächtnis hinzufügen
-		Robo r1 = new Robo(space, grid, rm);
-		Robo r2 = new Robo(space, grid, rm);
+		Robo r1 = new Robo(space, grid, rm, params.getInteger("maxRuns"));
+		Robo r2 = new Robo(space, grid, rm, params.getInteger("maxRuns"));
 		
 		addRobo(context, r1, 0, 0);
 		addRobo(context, r2, 0, 4);
