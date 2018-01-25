@@ -2,7 +2,6 @@ package mas_a5;
 
 import mas_a5.Koordinaten.Koordinate;
 import repast.simphony.engine.schedule.ScheduledMethod;
-import repast.simphony.space.SpatialMath;
 import repast.simphony.space.continuous.ContinuousSpace;
 import repast.simphony.space.continuous.NdPoint;
 import repast.simphony.space.grid.Grid;
@@ -34,55 +33,51 @@ public class Robo {
 
 	@ScheduledMethod(start = 1, interval = 1)
 	public void run() {
-		do {
+		if (curRun <= maxRuns) {
 			if (startPoint == null)
 				startPoint = grid.getLocation(this);
-
 			if (!arrived) {
-				// Über q value nächsten schritt auswählen
-				GridPoint p = grid.getLocation(this);
-
 				// Koordinaten Objekt der aktuellen Koordinate
-				Koordinate k = (Koordinate) grid.getObjectAt(p.getX(), p.getY());
+				Koordinate k = getCurrentLocation();
 
-				// Reward der Koordinate merken
-				mind.addReward(k);
-
-				// Q Values berechnen und updaten
-				String nextStepKey = mind.updateQList(k);
-
-				String[] coords = nextStepKey.split("_");
-
+				// Nächsten Schritt über Q's aussuchen
+				String[] coords = mind.getNextStep(k);
+				
 				int x = Integer.valueOf(coords[0]);
 				int y = Integer.valueOf(coords[1]);
+				
+				moveTowards(new GridPoint(x, y));
+				
+				// Q Value für neue Koordinate errechnen
+				Koordinate newk = getCurrentLocation();
+
+				// Reward der Koordinate merken
+				mind.addReward(newk);
+				
+				mind.updateQList(k, newk);
 
 				System.out.println("Koordinaten: " + x + ", " + y);
-
-				moveTowards(new GridPoint(x, y));
+				// Prüfen ob am Ziel
+				checkAtGoal();
 			}
-
-			// Warten auf anderen Robo
-
-			if (mind.allBotsArrived()) {
-				resetArrived();
-				mind.resetArrived();
-				beamToStart();
-			}
-		} while (curRun <= maxRuns);
+		}
 	}
 
+	private Koordinate getCurrentLocation() {
+		// Über q value nächsten schritt auswählen
+		GridPoint p = grid.getLocation(this);
+		return (Koordinate) grid.getObjectAt(p.getX(), p.getY());
+	}
+	
 	public void moveTowards(GridPoint pt) {
 		if (!pt.equals(grid.getLocation(this))) {
 			NdPoint myPoint = space.getLocation(this);
 			NdPoint otherPoint = new NdPoint(pt.getX(), pt.getY());
-			double angle = SpatialMath.calcAngleFor2DMovement(space, myPoint, otherPoint);
-			space.moveByVector(this, 1, angle, 0);
+
+			space.moveTo(this, otherPoint.getX(), otherPoint.getY());
 			myPoint = space.getLocation(this);
 			grid.moveTo(this, (int) myPoint.getX(), (int) myPoint.getY());
 		}
-
-		// Prüfen ob am Ziel
-		checkAtGoal();
 	}
 
 	private void checkAtGoal() {
@@ -92,16 +87,18 @@ public class Robo {
 		int curY = myPos.getY();
 
 		if (goalX == curX && goalY == curY) {
-			mind.arrived();
-			arrived = true;
+			beamToStart();
+//			mind.arrived();
+//			arrived = true;
 		}
 	}
 
-	private void beamToStart() {
+	public void beamToStart() {
 		int x = startPoint.getX();
 		int y = startPoint.getY();
 		space.moveTo(this, (int) x, (int) y);
 		grid.moveTo(this, (int) x, (int) y);
+		resetArrived();
 		curRun++;
 	}
 

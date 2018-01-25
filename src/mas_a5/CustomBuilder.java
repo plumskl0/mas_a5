@@ -25,6 +25,8 @@ public class CustomBuilder implements ContextBuilder<Object> {
 	private int xGrid = 10;
 	private int yGrid = 5;
 	
+	private RoboMind rm;
+	
 	@Override
 	public Context build(Context<Object> context) {
 		
@@ -41,12 +43,15 @@ public class CustomBuilder implements ContextBuilder<Object> {
 				new GridBuilderParameters<Object>(new StrictBorders(), new SimpleGridAdder<Object>(), true, xGrid, yGrid));
 
 		// Gedächtnis der Robos erzeugen
-		RoboMind rm = RoboMind.getInstance();
+		rm = RoboMind.getInstance();
 		
 		// Reward und Q Listen füllen
 		for (int x = 0; x < xGrid; x++) {
 			for (int y = 0; y < yGrid; y++) {
 				String c = x+"_"+y;
+				if (isBlocked(c))
+					continue;
+				
 				rm.addReward(c, 0);
 				rm.addQVal(c, 0.0d);
 			}
@@ -75,10 +80,15 @@ public class CustomBuilder implements ContextBuilder<Object> {
 		return context;
 	}
 
+	private boolean isBlocked(String c) {
+		return ("3_1".equals(c) || "3_2".equals(c) || "6_4".equals(c) || "7_3".equals(c) || "7_4".equals(c));
+	}
+	
 	private void addRobo(Context<Object> ctx, Robo b, int x, int y) {
 		ctx.add(b);
 		space.moveTo(b, (int) x, (int) y);
 		grid.moveTo(b, (int) x, (int) y);
+		rm.addBot(b);
 	}
 	
 	private void addKoordinate(Context<Object> ctx, Koordinate k) {

@@ -5,7 +5,6 @@ public class KoordinatenFactory {
 	private static int exitReward = 10;
 	private static int trapReward = -10;
 	private static int slipperyReward = -3;
-	private static int impassableReward = -100;
 	private static int normalReward = -1;
 
 	public static Koordinate createKoordinate(int x, int y) {
@@ -19,7 +18,7 @@ public class KoordinatenFactory {
 			c = new Trap(x, y, trapReward);
 		} else if ((x == 3 && y == 1) || (x == 3 && y == 2) || (x == 6 && y == 4) || (x == 7 && y == 3)
 				|| (x == 7 && y == 4)) {// impassible
-			c = new Impassable(x, y, impassableReward); // Impassable reward = 0
+			c = new Impassable(x, y, 0); // Impassable reward = 0
 														// als Indikator
 		} else if ((x == 8 && y == 4)) {// Ziel+10
 			c = new Exit(x, y, exitReward);
