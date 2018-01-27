@@ -22,6 +22,9 @@ public class Robo {
 
 	private int maxRuns;
 	private int curRun;
+	
+	private int stepCount;
+	private int lastMaxCount;
 
 	public Robo(ContinuousSpace<Object> space, Grid<Object> grid, RoboMind mind, int maxRuns) {
 		this.space = space;
@@ -36,27 +39,30 @@ public class Robo {
 		if (curRun <= maxRuns) {
 			if (startPoint == null)
 				startPoint = grid.getLocation(this);
+
 			if (!arrived) {
 				// Koordinaten Objekt der aktuellen Koordinate
-				Koordinate k = getCurrentLocation();
+				Koordinate state = getCurrentLocation();
 
 				// Nächsten Schritt über Q's aussuchen
-				String[] coords = mind.getNextStep(k);
+				String nextState = mind.getNextState(state);
 				
-				int x = Integer.valueOf(coords[0]);
-				int y = Integer.valueOf(coords[1]);
-				
-				moveTowards(new GridPoint(x, y));
-				
+				String keyNs = nextState.substring(0, 3);
+				int a = Integer.valueOf(nextState.split("_")[2]);
+
+				// nextState ist die Kombination aus nächster Koordinate mit der Action
+				// z.B. 0_1_UP (wobei UP = 0 ist)
+				if (mind.checkIfPossible(keyNs))
+					moveTowards(keyNs);
+
 				// Q Value für neue Koordinate errechnen
-				Koordinate newk = getCurrentLocation();
+				Koordinate newState = getCurrentLocation();
 
-				// Reward der Koordinate merken
-				mind.addReward(newk);
+				// Reward der Koordinate
+				int r = newState.getReward();
 				
-				mind.updateQList(k, newk);
+				mind.updateQList(state, newState, r, a);
 
-				System.out.println("Koordinaten: " + x + ", " + y);
 				// Prüfen ob am Ziel
 				checkAtGoal();
 			}
@@ -68,29 +74,39 @@ public class Robo {
 		GridPoint p = grid.getLocation(this);
 		return (Koordinate) grid.getObjectAt(p.getX(), p.getY());
 	}
-	
-	public void moveTowards(GridPoint pt) {
-		if (!pt.equals(grid.getLocation(this))) {
-			NdPoint myPoint = space.getLocation(this);
-			NdPoint otherPoint = new NdPoint(pt.getX(), pt.getY());
 
+	public void moveTowards(String ns) {
+		// Prüfen ob ich mich da hin bewegen kann
+		if (checkMove(ns)) {
+			
+			System.out.println("Moving to " + ns);
+			// Die Bewegung
+			String[] coords = ns.split("_");
+			
+			int x = Integer.valueOf(coords[0]);
+			int y = Integer.valueOf(coords[1]);
+			
+			NdPoint otherPoint = new NdPoint(x, y);
 			space.moveTo(this, otherPoint.getX(), otherPoint.getY());
-			myPoint = space.getLocation(this);
+			NdPoint myPoint = space.getLocation(this);
 			grid.moveTo(this, (int) myPoint.getX(), (int) myPoint.getY());
 		}
 	}
 
-	private void checkAtGoal() {
+	private boolean checkAtGoal() {
 		GridPoint myPos = grid.getLocation(this);
 
 		int curX = myPos.getX();
 		int curY = myPos.getY();
 
+		stepCount++;
 		if (goalX == curX && goalY == curY) {
+			mind.addQValGoal(curX, curY);
+			lastMaxCount = stepCount;
 			beamToStart();
-//			mind.arrived();
-//			arrived = true;
+			return true;
 		}
+		return false;
 	}
 
 	public void beamToStart() {
@@ -104,5 +120,18 @@ public class Robo {
 
 	private void resetArrived() {
 		arrived = false;
+		stepCount = 0;
+	}
+
+	private boolean checkMove(String key) {
+		return mind.containsStepy(key);
+	}
+	
+	public int getSteps() {
+		return stepCount;
+	}
+	
+	public int getLastMaxCount() {
+		return lastMaxCount;
 	}
 }

@@ -1,0 +1,40 @@
+<repast.simphony.data2.engine.DataSetDescriptor simphonyVersion="2.5.0">
+  <name>A Data Set</name>
+  <type>AGGREGATE</type>
+  <inclTick>true</inclTick>
+  <inclBatchRun>false</inclBatchRun>
+  <inclRandomSeed>false</inclRandomSeed>
+  <scheduleParams>
+    <start>1.0</start>
+    <interval>1.0</interval>
+    <priority>-Infinity</priority>
+    <pType>LAST</pType>
+    <duration>-1.0</duration>
+    <frequency>REPEAT</frequency>
+    <hashCode>-1551295084</hashCode>
+  </scheduleParams>
+  <atEnd>false</atEnd>
+  <methodDataSources class="linked-hash-map">
+    <entry>
+      <string>Mean StepCount</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>Mean StepCount</id>
+        <className>mas_a5.Robo</className>
+        <methodName>getSteps</methodName>
+        <aggType>MEAN</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>Mean MaxCount</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>Mean MaxCount</id>
+        <className>mas_a5.Robo</className>
+        <methodName>getLastMaxCount</methodName>
+        <aggType>MEAN</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+  </methodDataSources>
+  <countSources class="linked-hash-map"/>
+  <customNADataSources class="linked-hash-map"/>
+  <customAggDataSources class="linked-hash-map"/>
+</repast.simphony.data2.engine.DataSetDescriptor>
